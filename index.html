@@ -2,61 +2,66 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Gerador de E-mails Ativos</title>
     <style>
-        body { 
-            background: linear-gradient(135deg, #1e1e2f, #2d2d44); 
-            color: white; font-family: 'Segoe UI', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding-top: 50px; 
-        }
-        .container { background: #35354e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 350px; }
-        h2 { text-align: center; margin-bottom: 25px; }
-        button { 
-            width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; 
-            font-weight: bold; transition: 0.3s; background: #5c67f2; color: white; margin-bottom: 15px;
-        }
-        button:hover { background: #4a54e1; }
-        .lista { margin-top: 20px; border-top: 1px solid #4a4a6a; padding-top: 15px; }
-        .item { background: #2a2a3e; padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 0.9em; position: relative; }
+        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 50px; }
+        .container { background: #1e1e1e; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #03dac6; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        .item { background: #2c2c2c; padding: 12px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .trash { color: #cf6679; cursor: pointer; font-size: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Gerador Privado</h2>
-    <button onclick="gerarEListar()">Gerar Nova Conta</button>
-    <div id="lista" class="lista"></div>
+    <h2>Criador de E-mails</h2>
+    <p style="font-size: 12px; color: #888;">E-mails gerados via API Mail7</p>
+    <button onclick="criarEmailReal()">Gerar E-mail Real</button>
+    <div id="lista"></div>
 </div>
 
 <script>
-    // Carrega dados ao abrir a página
-    window.onload = carregarLista;
+    async function criarEmailReal() {
+        // Nome aleatório para o e-mail
+        const user = "user" + Math.floor(Math.random() * 99999);
+        const email = user + "@mail7.io";
+        
+        // No Mail7, a 'senha' é definida pelo usuário no primeiro acesso à caixa de entrada
+        const senha = "Senha123!Secure"; 
 
-    function gerarEListar() {
-        const email = `user${Math.floor(Math.random()*9999)}@meusite.com`;
-        const senha = Math.random().toString(36).substring(2, 10);
-        
-        const novaConta = { email, senha };
-        
+        // Salva no LocalStorage
         let contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
-        contas.push(novaConta);
+        contas.push({ email, senha });
         localStorage.setItem('minhasContas', JSON.stringify(contas));
         
-        carregarLista();
+        exibir();
     }
 
-    function carregarLista() {
+    function deletar(index) {
+        let contas = JSON.parse(localStorage.getItem('minhasContas'));
+        contas.splice(index, 1);
+        localStorage.setItem('minhasContas', JSON.stringify(contas));
+        exibir();
+    }
+
+    function exibir() {
         const contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
-        const divLista = document.getElementById('lista');
-        divLista.innerHTML = "<h3>Histórico:</h3>";
+        const lista = document.getElementById('lista');
+        lista.innerHTML = "";
         
-        contas.forEach(c => {
-            divLista.innerHTML += `
+        contas.forEach((c, i) => {
+            lista.innerHTML += `
                 <div class="item">
-                    Email: ${c.email}<br>
-                    Senha: <b>${c.senha}</b>
+                    <div>
+                        <b>${c.email}</b><br>
+                        <small>Acesso: ${c.senha}</small>
+                    </div>
+                    <span class="trash" onclick="deletar(${i})">×</span>
                 </div>`;
         });
     }
+
+    exibir();
 </script>
 
 </body>
