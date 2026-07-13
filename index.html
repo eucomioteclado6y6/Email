@@ -2,49 +2,74 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador Anti-Bloqueio</title>
+    <title>Gerador Pro - Inbox</title>
     <style>
-        body { background: #121212; color: #e0e0e0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 30px; }
-        .container { background: #1e1e1e; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        button { width: 100%; padding: 12px; background: #5865F2; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
-        .item { background: #2c2c2c; padding: 10px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        :root { --main: #7289da; --bg: #2c2f33; --dark: #23272a; }
+        body { background: var(--dark); color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .box { background: var(--bg); padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        button { background: var(--main); color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .email-item { display: flex; justify-content: space-between; align-items: center; background: #393d42; padding: 8px 12px; margin: 5px 0; border-radius: 4px; cursor: pointer; }
+        #inbox { margin-top: 20px; background: #202225; padding: 15px; border-radius: 5px; min-height: 100px; border: 1px solid #444; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Gerador "Discord-Friendly"</h2>
-    <input type="text" id="baseEmail" placeholder="Seu e-mail base (ex: nome@gmail.com)" style="width:93%; padding:10px; margin-bottom:10px;">
-    <button onclick="gerarAlias()">Gerar Variantes</button>
-    <div id="lista"></div>
+<div class="box">
+    <h2>Gerador Profissional</h2>
+    <button onclick="gerar()">+ Gerar Novo Email</button>
+    <div id="lista" style="margin-top:15px"></div>
+    <div id="inbox">📩 Caixa de entrada vazia...</div>
 </div>
 
 <script>
-    function gerarAlias() {
-        const base = document.getElementById('baseEmail').value;
-        if (!base.includes('@')) return alert("Coloque um e-mail válido!");
+    const PROXY = "https://corsproxy.io/?";
 
-        const [user, domain] = base.split('@');
-        let novasContas = [];
-
-        // Gera 5 variações usando pontos aleatórios (ex: n.ome, no.me, n.o.me)
-        for(let i=0; i<5; i++) {
-            let novoUser = user.split('').map(char => Math.random() > 0.5 ? char + '.' : char).join('');
-            novasContas.push(novoUser.replace(/\.$/, '') + '@' + domain);
-        }
-
-        localStorage.setItem('contas', JSON.stringify(novasContas));
-        exibir();
+    function gerar() {
+        // Nome aleatório para evitar colisão
+        const user = "discord" + Math.random().toString(36).substring(7);
+        const email = user + "@mail7.io"; 
+        
+        let contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
+        contas.push(email);
+        localStorage.setItem('minhasContas', JSON.stringify(contas));
+        render();
     }
 
-    function exibir() {
+    async function lerInbox(email) {
+        document.getElementById('inbox').innerHTML = "Buscando mensagens...";
+        try {
+            const url = PROXY + encodeURIComponent(`https://api.mail7.io/inbox?to=${email}&apikey=845d4750-6d45-4161-912f-68e1467bd29b`);
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            if(data.data.length === 0) {
+                document.getElementById('inbox').innerHTML = "Sem mensagens ainda. Aguarde 30s e clique de novo.";
+            } else {
+                document.getElementById('inbox').innerHTML = data.data.map(m => `
+                    <div style="border-bottom:1px solid #444; padding:5px 0;">
+                        <b>De:</b> ${m.from}<br><b>Assunto:</b> ${m.subject}
+                    </div>`).join('');
+            }
+        } catch(e) { document.getElementById('inbox').innerHTML = "Erro ao buscar."; }
+    }
+
+    function remover(i) {
+        let contas = JSON.parse(localStorage.getItem('minhasContas'));
+        contas.splice(i, 1);
+        localStorage.setItem('minhasContas', JSON.stringify(contas));
+        render();
+    }
+
+    function render() {
         const lista = document.getElementById('lista');
-        lista.innerHTML = "<h3>Variantes geradas:</h3>";
-        const contas = JSON.parse(localStorage.getItem('contas') || '[]');
-        contas.forEach((c) => {
-            lista.innerHTML += `<div class="item">${c}</div>`;
-        });
+        const contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
+        lista.innerHTML = contas.map((e, i) => `
+            <div class="email-item">
+                <span onclick="lerInbox('${e}')">${e}</span>
+                <span onclick="remover(${i})">🗑️</span>
+            </div>`).join('');
     }
+    render();
 </script>
 </body>
 </html>
