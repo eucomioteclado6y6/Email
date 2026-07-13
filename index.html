@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #1e1e2f, #2d2d44); 
+            color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding-top: 50px; 
+        }
+        .container { background: #35354e; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 350px; }
+        h2 { text-align: center; margin-bottom: 25px; }
+        button { 
+            width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; transition: 0.3s; background: #5c67f2; color: white; margin-bottom: 15px;
+        }
+        button:hover { background: #4a54e1; }
+        .lista { margin-top: 20px; border-top: 1px solid #4a4a6a; padding-top: 15px; }
+        .item { background: #2a2a3e; padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 0.9em; position: relative; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Gerador Privado</h2>
+    <button onclick="gerarEListar()">Gerar Nova Conta</button>
+    <div id="lista" class="lista"></div>
+</div>
+
+<script>
+    // Carrega dados ao abrir a página
+    window.onload = carregarLista;
+
+    function gerarEListar() {
+        const email = `user${Math.floor(Math.random()*9999)}@meusite.com`;
+        const senha = Math.random().toString(36).substring(2, 10);
+        
+        const novaConta = { email, senha };
+        
+        let contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
+        contas.push(novaConta);
+        localStorage.setItem('minhasContas', JSON.stringify(contas));
+        
+        carregarLista();
+    }
+
+    function carregarLista() {
+        const contas = JSON.parse(localStorage.getItem('minhasContas') || '[]');
+        const divLista = document.getElementById('lista');
+        divLista.innerHTML = "<h3>Histórico:</h3>";
+        
+        contas.forEach(c => {
+            divLista.innerHTML += `
+                <div class="item">
+                    Email: ${c.email}<br>
+                    Senha: <b>${c.senha}</b>
+                </div>`;
+        });
+    }
+</script>
+
+</body>
+</html>
