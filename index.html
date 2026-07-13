@@ -2,88 +2,49 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador de E-mails Full</title>
+    <title>Gerador Anti-Bloqueio</title>
     <style>
-        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 30px; }
+        body { background: #121212; color: #e0e0e0; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding-top: 30px; }
         .container { background: #1e1e1e; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        select, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 6px; border: none; }
-        button { background: #bb86fc; font-weight: bold; cursor: pointer; color: white; }
-        .item { background: #2c2c2c; padding: 10px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .trash { color: #cf6679; cursor: pointer; font-size: 20px; font-weight: bold; padding: 0 10px; }
-        #viewer { background: #000; padding: 15px; margin-top: 15px; border-radius: 5px; min-height: 100px; font-size: 0.9em; border: 1px solid #444; word-break: break-all; }
+        button { width: 100%; padding: 12px; background: #5865F2; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        .item { background: #2c2c2c; padding: 10px; margin-bottom: 8px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Gerador Pro</h2>
-    <select id="servico">
-        <option value="mail7">Mail7</option>
-    </select>
-    <button onclick="gerar()">Gerar Novo</button>
+    <h2>Gerador "Discord-Friendly"</h2>
+    <input type="text" id="baseEmail" placeholder="Seu e-mail base (ex: nome@gmail.com)" style="width:93%; padding:10px; margin-bottom:10px;">
+    <button onclick="gerarAlias()">Gerar Variantes</button>
     <div id="lista"></div>
-    <div id="viewer">Clique em um e-mail para verificar a caixa de entrada...</div>
 </div>
 
 <script>
-    // Usando um Proxy Público (CORS Bypass) para você não precisar hospedar nada
-    const PROXY_URL = "https://corsproxy.io/?"; 
+    function gerarAlias() {
+        const base = document.getElementById('baseEmail').value;
+        if (!base.includes('@')) return alert("Coloque um e-mail válido!");
 
-    function gerar() {
-        const email = "user" + Math.floor(Math.random() * 99999) + "@mail7.io";
-        let contas = JSON.parse(localStorage.getItem('contas') || '[]');
-        contas.push({ email });
-        localStorage.setItem('contas', JSON.stringify(contas));
-        exibir();
-    }
+        const [user, domain] = base.split('@');
+        let novasContas = [];
 
-    async function lerEmail(email) {
-        const viewer = document.getElementById('viewer');
-        viewer.innerHTML = "Buscando mensagens no servidor...";
-        
-        try {
-            // A API do Mail7 precisa de um parametro 'apikey', estou usando um padrão público/teste
-            const apiDestino = `https://api.mail7.io/inbox?to=${email}&apikey=845d4750-6d45-4161-912f-68e1467bd29b&apisecret=756f7481-995f-4a37-b472-358055bf933f`;
-            const response = await fetch(PROXY_URL + encodeURIComponent(apiDestino));
-            const data = await response.json();
-            
-            viewer.innerHTML = `<strong>Caixa de entrada: ${email}</strong><br><br>`;
-            if (data.data.length === 0) {
-                viewer.innerHTML += "Nenhuma mensagem encontrada.";
-            } else {
-                data.data.forEach(msg => {
-                    viewer.innerHTML += `<div style="border-bottom:1px solid #333; margin-top:10px;">
-                        <b>De:</b> ${msg.from}<br>
-                        <b>Assunto:</b> ${msg.subject}<br>
-                    </div>`;
-                });
-            }
-        } catch (e) {
-            viewer.innerHTML = "Erro ao conectar. O servidor de proxy pode estar ocupado.";
+        // Gera 5 variações usando pontos aleatórios (ex: n.ome, no.me, n.o.me)
+        for(let i=0; i<5; i++) {
+            let novoUser = user.split('').map(char => Math.random() > 0.5 ? char + '.' : char).join('');
+            novasContas.push(novoUser.replace(/\.$/, '') + '@' + domain);
         }
-    }
 
-    function deletar(index) {
-        let contas = JSON.parse(localStorage.getItem('contas'));
-        contas.splice(index, 1);
-        localStorage.setItem('contas', JSON.stringify(contas));
+        localStorage.setItem('contas', JSON.stringify(novasContas));
         exibir();
     }
 
     function exibir() {
         const lista = document.getElementById('lista');
-        lista.innerHTML = "";
+        lista.innerHTML = "<h3>Variantes geradas:</h3>";
         const contas = JSON.parse(localStorage.getItem('contas') || '[]');
-        contas.forEach((c, i) => {
-            lista.innerHTML += `
-                <div class="item">
-                    <span onclick="lerEmail('${c.email}')">${c.email}</span>
-                    <span class="trash" onclick="event.stopPropagation(); deletar(${i})">×</span>
-                </div>`;
+        contas.forEach((c) => {
+            lista.innerHTML += `<div class="item">${c}</div>`;
         });
     }
-
-    exibir();
 </script>
 </body>
 </html>
