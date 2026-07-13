@@ -72,16 +72,14 @@
         renderHistorico(filtrados);
     }
 
-    // Agora o botão BUSCAR vai direto para o Gmail pesquisar aquele e-mail específico
-function filtrarBusca() {
-    const termo = document.getElementById("baseEmail").value;
-    if(termo) {
-        // Abre o Gmail já pesquisando o e-mail que você digitou na caixa
-        window.open(`https://mail.google.com/mail/u/0/#search/to%3A${termo}`, '_blank');
-    } else {
-        alert("Digite um e-mail na caixa primeiro!");
+    function filtrarBusca() {
+        const termo = document.getElementById("baseEmail").value;
+        if(termo) {
+            window.open(`https://mail.google.com/mail/u/0/#search/to%3A${termo}`, '_blank');
+        } else {
+            alert("Digite um e-mail base na caixa!");
+        }
     }
-}
 
     function renderHistorico(lista) {
         const historico = document.getElementById("historico");
@@ -89,7 +87,8 @@ function filtrarBusca() {
         lista.forEach(e => {
             let d = document.createElement("div");
             d.className = "email-item";
-            d.innerHTML = `<span>${e}</span> <span style="color:#43b581; cursor:pointer" onclick="abrirGmail()">MAIL</span>`;
+            // CORRIGIDO: Passando o e-mail específico para a função abrirGmail(e)
+            d.innerHTML = `<span>${e}</span> <span style="color:#43b581; cursor:pointer" onclick="abrirGmail('${e}')">MAIL</span>`;
             historico.prepend(d);
         });
     }
@@ -99,10 +98,10 @@ function filtrarBusca() {
         alert("Copiado!");
     }
 
-    // E quando você clicar no MAIL da lista, ele abre o e-mail específico
-function abrirGmail(email) {
-    window.open(`https://mail.google.com/mail/u/0/#search/to%3A${email}`, '_blank');
-}
+    function abrirGmail(email) {
+        // Agora ele abre especificamente o e-mail da linha
+        window.open(`https://mail.google.com/mail/u/0/#search/to%3A${email}`, '_blank');
+    }
 </script>
 
 </body>
