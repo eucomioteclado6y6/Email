@@ -2,17 +2,18 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador Pro Discord</title>
+    <title>Gerador Discord Completo</title>
     <style>
         body { background: #23272a; color: #fff; font-family: 'Segoe UI', Arial; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #2f3136; padding: 25px; border-radius: 10px; width: 450px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
-        input { width: 92%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: none; background: #40444b; color: white; }
+        .box { background: #2f3136; padding: 25px; border-radius: 10px; width: 480px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
+        input { width: 92%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: none; background: #40444b; color: white; }
         .btn { width: 100%; padding: 12px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; margin-bottom: 15px; color: white; background: #5865f2; }
         .email-item { display: flex; justify-content: space-between; align-items: center; background: #40444b; padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 0.85em; }
         .actions { display: flex; gap: 5px; }
         .copy { background: #43b581; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
         .mail { background: #f25858; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
         .info { font-size: 0.75em; color: #b9bbbe; background: #202225; padding: 10px; border-radius: 5px; margin-top: 15px; }
+        h3 { border-bottom: 1px solid #40444b; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -21,27 +22,29 @@
     <h2>Gerador Discord Pro</h2>
     <input type="email" id="baseEmail" placeholder="Seu e-mail real (ex: nome@gmail.com)">
     <button class="btn" onclick="gerar()">GERAR 10 VARIANTES</button>
+    
     <div id="lista"></div>
     
     <div class="info">
-        <strong>Como verificar:</strong><br>
-        1. Copie o e-mail gerado e cole no registro do Discord.<br>
-        2. Clique no botão <b>VERIFICAR</b> para abrir seu Gmail.<br>
-        3. O Discord enviará o código para a sua caixa de entrada principal.
+        <strong>Manual de Sobrevivência:</strong><br>
+        1. Gere e copie a variante.<br>
+        2. Cadastre no Discord.<br>
+        3. Se cair a conta, não tente reviver. Troque o IP (desligue o Wi-Fi) e gere outra variante.<br>
+        4. O botão <b>MAIL</b> abre direto sua pesquisa de e-mails do Discord no Gmail.
     </div>
 </div>
 
 <script>
     function gerar() {
         const base = document.getElementById("baseEmail").value;
-        if (!base.includes("@")) return alert("Por favor, insira um e-mail válido com @");
+        if (!base.includes("@")) return alert("Use um e-mail válido com @");
         
         const [user, domain] = base.split("@");
         const lista = document.getElementById("lista");
-        lista.innerHTML = "";
+        lista.innerHTML = "<h3>Variantes Geradas:</h3>";
 
         for (let i = 0; i < 10; i++) {
-            // Cria a variante de ponto do Gmail
+            // Cria variantes de pontos (Estratégia Anti-Bloqueio)
             let userVariado = user.split("").map(c => Math.random() > 0.5 ? c + "." : c).join("").replace(/\.$/, "");
             let email = userVariado + "@" + domain;
             
@@ -59,10 +62,11 @@
 
     function copiar(t) {
         navigator.clipboard.writeText(t);
-        alert("Copiado com sucesso!");
+        alert("E-mail copiado: " + t);
     }
 
     function abrirGmail() {
+        // Abre pesquisa no Gmail filtrando tudo do Discord
         window.open('https://mail.google.com/mail/u/0/#search/from%3Adiscord', '_blank');
     }
 </script>
