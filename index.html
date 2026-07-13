@@ -5,88 +5,66 @@
     <title>Gerador Discord Pro</title>
     <style>
         body { background: #23272a; color: #fff; font-family: 'Segoe UI', Arial; display: flex; justify-content: center; padding: 20px; }
-        .main-container { display: flex; gap: 20px; width: 950px; }
+        .main { display: flex; gap: 20px; width: 950px; }
         .box { background: #2f3136; padding: 20px; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); flex: 1; }
-        input { width: 90%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #40444b; color: white; }
-        .btn { width: 100%; padding: 10px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; margin-bottom: 15px; color: white; background: #5865f2; }
-        .email-item { display: flex; justify-content: space-between; align-items: center; background: #40444b; padding: 8px; margin-bottom: 6px; border-radius: 4px; font-size: 0.85em; }
-        .info { font-size: 0.75em; color: #b9bbbe; background: #202225; padding: 10px; border-radius: 5px; margin-top: 15px; }
-        .filter-box { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #5865f2; }
+        input { width: 80%; padding: 10px; border-radius: 5px; border: none; background: #40444b; color: white; }
+        .btn-search { padding: 10px; background: #43b581; border: none; border-radius: 5px; color: white; cursor: pointer; }
+        .email-item { display: flex; justify-content: space-between; align-items: center; background: #40444b; padding: 8px; margin-bottom: 6px; border-radius: 4px; font-size: 0.85em; cursor: pointer; }
+        .reader { background: #202225; padding: 15px; border-radius: 5px; margin-top: 15px; min-height: 150px; border: 1px solid #444; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
+<div class="main">
     <div class="box">
-        <h2>Gerador Discord</h2>
-        <input type="email" id="baseEmail" placeholder="Seu e-mail base (ex: nome@gmail.com)">
-        <button class="btn" onclick="gerar()">GERAR 10 VARIANTES</button>
-        
-        <div class="info">
-            <strong>Como verificar:</strong><br>
-            1. Gere, copie e cadastre no Discord.<br>
-            2. <b>Filtre suas contas abaixo:</b>
-            <input type="text" id="filtroEmail" class="filter-box" placeholder="Buscar e-mail específico..." onkeyup="filtrar()">
+        <h2>Gerador & Busca</h2>
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="filtroBusca" placeholder="Buscar e-mail criado...">
+            <button class="btn-search" onclick="buscar()">Buscar</button>
         </div>
-        <div id="lista"></div>
+        <div id="lista" style="margin-top: 15px;"></div>
     </div>
 
     <div class="box">
-        <h3>Histórico de Gerados</h3>
-        <div id="historico"></div>
+        <h3>Conteúdo do E-mail</h3>
+        <div id="reader" class="reader">Clique em um e-mail para verificar status...</div>
     </div>
 </div>
 
 <script>
-    let listaEmais = []; // Armazena todos os gerados na sessão
+    let meusEmais = []; // Lista simulada
 
-    function gerar() {
-        const base = document.getElementById("baseEmail").value;
-        if (!base.includes("@")) return alert("Use um e-mail válido com @");
-        
-        const [user, domain] = base.split("@");
+    function buscar() {
+        const termo = document.getElementById("filtroBusca").value.toLowerCase();
         const lista = document.getElementById("lista");
-        lista.innerHTML = "<h3>Variantes:</h3>";
-
-        for (let i = 0; i < 10; i++) {
-            let userVariado = user.split("").map(c => Math.random() > 0.5 ? c + "." : c).join("").replace(/\.$/, "");
-            let email = userVariado + "@" + domain;
-            listaEmais.push(email);
-            
+        lista.innerHTML = "";
+        
+        const resultados = meusEmais.filter(e => e.toLowerCase().includes(termo));
+        
+        resultados.forEach(email => {
             let div = document.createElement("div");
             div.className = "email-item";
-            div.innerHTML = `<span>${email}</span> <button onclick="copiar('${email}')">COPY</button>`;
+            div.innerHTML = `<span>${email}</span> <b onclick="verEmail('${email}')">VER</b>`;
             lista.appendChild(div);
-        }
-        renderHistorico(listaEmais);
-    }
-
-    function filtrar() {
-        const termo = document.getElementById("filtroEmail").value.toLowerCase();
-        const filtrados = listaEmais.filter(e => e.toLowerCase().includes(termo));
-        renderHistorico(filtrados);
-    }
-
-    function renderHistorico(lista) {
-        const historico = document.getElementById("historico");
-        historico.innerHTML = "";
-        lista.forEach(e => {
-            let d = document.createElement("div");
-            d.className = "email-item";
-            d.innerHTML = `<span>${e}</span> <span style="color:#43b581; cursor:pointer" onclick="abrirGmail()">MAIL</span>`;
-            historico.prepend(d);
         });
     }
 
-    function copiar(t) {
-        navigator.clipboard.writeText(t);
-        alert("Copiado!");
+    // Função que simula a leitura do conteúdo
+    function verEmail(email) {
+        document.getElementById("reader").innerHTML = `
+            <strong>${email}</strong><br><br>
+            Status: <i>Aguardando confirmação do Discord...</i><br>
+            <button style="margin-top:10px" onclick="abrirGmail('${email}')">ABRIR GMAIL PARA VERIFICAR</button>
+        `;
     }
 
-    function abrirGmail() {
-        window.open('https://mail.google.com/mail/u/0/#search/from%3Adiscord', '_blank');
+    function abrirGmail(email) {
+        window.open(`https://mail.google.com/mail/u/0/#search/to%3A${email}`, '_blank');
     }
+
+    // Adiciona alguns e-mails de teste para você ver como fica
+    meusEmais = ["user1@gmail.com", "user.1@gmail.com", "testes@gmail.com"];
+    buscar();
 </script>
-
 </body>
 </html>
