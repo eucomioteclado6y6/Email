@@ -2,71 +2,88 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Gerador Discord Completo</title>
+    <title>Gerador Discord Pro</title>
     <style>
         body { background: #23272a; color: #fff; font-family: 'Segoe UI', Arial; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #2f3136; padding: 25px; border-radius: 10px; width: 480px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
-        input { width: 92%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: none; background: #40444b; color: white; }
-        .btn { width: 100%; padding: 12px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; margin-bottom: 15px; color: white; background: #5865f2; }
-        .email-item { display: flex; justify-content: space-between; align-items: center; background: #40444b; padding: 10px; margin-bottom: 8px; border-radius: 5px; font-size: 0.85em; }
-        .actions { display: flex; gap: 5px; }
-        .copy { background: #43b581; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
-        .mail { background: #f25858; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
+        .main-container { display: flex; gap: 20px; width: 950px; }
+        .box { background: #2f3136; padding: 20px; border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); flex: 1; }
+        input { width: 90%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #40444b; color: white; }
+        .btn { width: 100%; padding: 10px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; margin-bottom: 15px; color: white; background: #5865f2; }
+        .email-item { display: flex; justify-content: space-between; align-items: center; background: #40444b; padding: 8px; margin-bottom: 6px; border-radius: 4px; font-size: 0.85em; }
         .info { font-size: 0.75em; color: #b9bbbe; background: #202225; padding: 10px; border-radius: 5px; margin-top: 15px; }
-        h3 { border-bottom: 1px solid #40444b; padding-bottom: 5px; }
+        .filter-box { width: 90%; padding: 10px; margin-top: 10px; border: 1px solid #5865f2; }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Gerador Discord Pro</h2>
-    <input type="email" id="baseEmail" placeholder="Seu e-mail real (ex: nome@gmail.com)">
-    <button class="btn" onclick="gerar()">GERAR 10 VARIANTES</button>
-    
-    <div id="lista"></div>
-    
-    <div class="info">
-        <strong>Manual de Sobrevivência:</strong><br>
-        1. Gere e copie a variante.<br>
-        2. Cadastre no Discord.<br>
-        3. Se cair a conta, não tente reviver. Troque o IP (desligue o Wi-Fi) e gere outra variante.<br>
-        4. O botão <b>MAIL</b> abre direto sua pesquisa de e-mails do Discord no Gmail.
+<div class="main-container">
+    <div class="box">
+        <h2>Gerador Discord</h2>
+        <input type="email" id="baseEmail" placeholder="Seu e-mail base (ex: nome@gmail.com)">
+        <button class="btn" onclick="gerar()">GERAR 10 VARIANTES</button>
+        
+        <div class="info">
+            <strong>Como verificar:</strong><br>
+            1. Gere, copie e cadastre no Discord.<br>
+            2. <b>Filtre suas contas abaixo:</b>
+            <input type="text" id="filtroEmail" class="filter-box" placeholder="Buscar e-mail específico..." onkeyup="filtrar()">
+        </div>
+        <div id="lista"></div>
+    </div>
+
+    <div class="box">
+        <h3>Histórico de Gerados</h3>
+        <div id="historico"></div>
     </div>
 </div>
 
 <script>
+    let listaEmais = []; // Armazena todos os gerados na sessão
+
     function gerar() {
         const base = document.getElementById("baseEmail").value;
         if (!base.includes("@")) return alert("Use um e-mail válido com @");
         
         const [user, domain] = base.split("@");
         const lista = document.getElementById("lista");
-        lista.innerHTML = "<h3>Variantes Geradas:</h3>";
+        lista.innerHTML = "<h3>Variantes:</h3>";
 
         for (let i = 0; i < 10; i++) {
-            // Cria variantes de pontos (Estratégia Anti-Bloqueio)
             let userVariado = user.split("").map(c => Math.random() > 0.5 ? c + "." : c).join("").replace(/\.$/, "");
             let email = userVariado + "@" + domain;
+            listaEmais.push(email);
             
             let div = document.createElement("div");
             div.className = "email-item";
-            div.innerHTML = `
-                <span>${email}</span>
-                <div class="actions">
-                    <span class="copy" onclick="copiar('${email}')">COPY</span>
-                    <span class="mail" onclick="abrirGmail()">MAIL</span>
-                </div>`;
+            div.innerHTML = `<span>${email}</span> <button onclick="copiar('${email}')">COPY</button>`;
             lista.appendChild(div);
         }
+        renderHistorico(listaEmais);
+    }
+
+    function filtrar() {
+        const termo = document.getElementById("filtroEmail").value.toLowerCase();
+        const filtrados = listaEmais.filter(e => e.toLowerCase().includes(termo));
+        renderHistorico(filtrados);
+    }
+
+    function renderHistorico(lista) {
+        const historico = document.getElementById("historico");
+        historico.innerHTML = "";
+        lista.forEach(e => {
+            let d = document.createElement("div");
+            d.className = "email-item";
+            d.innerHTML = `<span>${e}</span> <span style="color:#43b581; cursor:pointer" onclick="abrirGmail()">MAIL</span>`;
+            historico.prepend(d);
+        });
     }
 
     function copiar(t) {
         navigator.clipboard.writeText(t);
-        alert("E-mail copiado: " + t);
+        alert("Copiado!");
     }
 
     function abrirGmail() {
-        // Abre pesquisa no Gmail filtrando tudo do Discord
         window.open('https://mail.google.com/mail/u/0/#search/from%3Adiscord', '_blank');
     }
 </script>
