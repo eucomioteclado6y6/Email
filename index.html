@@ -72,11 +72,16 @@
         renderHistorico(filtrados);
     }
 
-    // Botão novo de busca ao lado do input
-    function filtrarBusca() {
-        filtrar(); // Apenas chama a mesma função de filtro do histórico
-        alert("Buscando no histórico...");
+    // Agora o botão BUSCAR vai direto para o Gmail pesquisar aquele e-mail específico
+function filtrarBusca() {
+    const termo = document.getElementById("baseEmail").value;
+    if(termo) {
+        // Abre o Gmail já pesquisando o e-mail que você digitou na caixa
+        window.open(`https://mail.google.com/mail/u/0/#search/to%3A${termo}`, '_blank');
+    } else {
+        alert("Digite um e-mail na caixa primeiro!");
     }
+}
 
     function renderHistorico(lista) {
         const historico = document.getElementById("historico");
@@ -94,9 +99,10 @@
         alert("Copiado!");
     }
 
-    function abrirGmail() {
-        window.open('https://mail.google.com/mail/u/0/#search/from%3Adiscord', '_blank');
-    }
+    // E quando você clicar no MAIL da lista, ele abre o e-mail específico
+function abrirGmail(email) {
+    window.open(`https://mail.google.com/mail/u/0/#search/to%3A${email}`, '_blank');
+}
 </script>
 
 </body>
